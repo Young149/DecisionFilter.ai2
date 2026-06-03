@@ -1,6 +1,6 @@
 import { useEffect, useState, type ComponentType } from "react";
 
-import { modules as discoveredModules } from "./.generated/mockup-components";
+const discoveredModules = import.meta.glob("./components/mockups/**/*.tsx");
 
 type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 
@@ -45,9 +45,7 @@ function PreviewRenderer({
 
       try {
         const mod = await loader();
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
         const name = componentPath.split("/").pop()!;
         const comp = _resolveComponent(mod, name);
         if (!comp) {
@@ -58,10 +56,7 @@ function PreviewRenderer({
         }
         setComponent(() => comp);
       } catch (e) {
-        if (cancelled) {
-          return;
-        }
-
+        if (cancelled) return;
         const message = e instanceof Error ? e.message : String(e);
         setError(`Failed to load preview.\n${message}`);
       }
@@ -135,7 +130,7 @@ function App() {
     return (
       <PreviewRenderer
         componentPath={previewPath}
-        modules={discoveredModules}
+        modules={discoveredModules as ModuleMap}
       />
     );
   }
